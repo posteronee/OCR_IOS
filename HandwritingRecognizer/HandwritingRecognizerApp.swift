@@ -11,16 +11,7 @@ import SwiftUI
 struct HandwritingRecognizerApp: App {
     var body: some Scene {
         WindowGroup {
-            AppEntryPoint(content: ContentView())
-        }
-    }
-}
-
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Text("App")
-                .foregroundStyle(.black)
+            AppEntryPoint(content: TabBar())
         }
     }
 }
