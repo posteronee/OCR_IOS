@@ -9,16 +9,36 @@ import SwiftUI
 
 struct TabBar: View {
     @State private var selectedTab = 0
+    @State private var isButtonsPresented = false
+    @State private var showCamera = false
+    @State private var isShowingPhotoPicker = false
+    @State private var showAlert = false
 
     var body: some View {
         NavigationView {
             VStack {
                 getCurrentView()
                 Spacer()
-                CustomTabBar(selectedTab: $selectedTab)
+                CustomTabBar(selectedTab: $selectedTab, isButtonsPresented: $isButtonsPresented)
                     .padding(.horizontal, 20)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .modalButtons($isButtonsPresented) {
+                CustomButtonsWrapper(
+                    cameraAction: {
+                        showCamera = true
+                    },
+                    galleryAction: {
+                        showAlert = true
+                        //                        switch imageViewModel.libraryAccess {
+                        //                        case .authorized, .limited:
+                        //                            isShowingPhotoPicker.toggle()
+                        //                        default:
+                        //                            showAlert = true
+                        //                        }
+                    }
+                )
+            }
         }
     }
 
@@ -37,8 +57,7 @@ struct TabBar: View {
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
-    
-    @State private var isPresented = false
+    @Binding var isButtonsPresented: Bool
 
     var body: some View {
         ZStack {
@@ -60,7 +79,7 @@ struct CustomTabBar: View {
             
             VStack {
                 Button(action: {
-                    isPresented.toggle()
+                    isButtonsPresented.toggle()
                 }) {
                     Image("ScannerImage")
                         .resizable()
