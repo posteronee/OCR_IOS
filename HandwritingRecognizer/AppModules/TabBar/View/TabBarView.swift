@@ -13,7 +13,9 @@ struct TabBar: View {
     @State private var showCamera = false
     @State private var isShowingPhotoPicker = false
     @State private var showAlert = false
-
+    
+    @StateObject var galleryConfigViewModel: GalleryConfigViewModel = GalleryConfigViewModel()
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -30,18 +32,28 @@ struct TabBar: View {
                     },
                     galleryAction: {
                         showAlert = true
-                        //                        switch imageViewModel.libraryAccess {
-                        //                        case .authorized, .limited:
-                        //                            isShowingPhotoPicker.toggle()
-                        //                        default:
-                        //                            showAlert = true
-                        //                        }
+                        switch galleryConfigViewModel.libraryAccess {
+                        case .authorized, .limited:
+                            isShowingPhotoPicker.toggle()
+                        default:
+                            showAlert = true
+                        }
                     }
                 )
             }
+            .fullScreenCover(isPresented: $isShowingPhotoPicker) {
+                PHImagePicker(configuration: galleryConfigViewModel.setupConfig, selectedImage: $galleryConfigViewModel.selectedImages)
+                    .edgesIgnoringSafeArea(.all)
+                    .onDisappear {
+                        isButtonsPresented = false
+                    }
+            }
+            .onAppear {
+                galleryConfigViewModel.checkLibraryAccess()
+            }
         }
     }
-
+    
     @ViewBuilder
     private func getCurrentView() -> some View {
         switch selectedTab {
@@ -58,7 +70,7 @@ struct TabBar: View {
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
     @Binding var isButtonsPresented: Bool
-
+    
     var body: some View {
         ZStack {
             HStack(spacing: 200) {
@@ -103,7 +115,7 @@ struct TabBarItem: View {
     let icon1: String
     let icon2: String
     let isSelected: Bool
-
+    
     var body: some View {
         VStack {
             Image(isSelected ? icon1 : icon2)
