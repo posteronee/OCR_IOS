@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Foundation
+import UIKit
 
 struct TabBar: View {
     @State private var selectedTab = 0
@@ -14,6 +16,9 @@ struct TabBar: View {
     @State private var showScanner = false
     @State private var isShowingPhotoPicker = false
     @State private var showAlert = false
+    @State private var ocrResult: String? = nil
+    @State private var showOCRResult = false
+
     
     @StateObject var galleryConfigViewModel: GalleryConfigViewModel = GalleryConfigViewModel()
     
@@ -50,15 +55,38 @@ struct TabBar: View {
                 PHImagePicker(configuration: galleryConfigViewModel.setupConfig, selectedImage: $galleryConfigViewModel.selectedImages)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear {
-                        isButtonsPresented = false
+                        if let image = galleryConfigViewModel.selectedImages.first {
+                            uploadImageToServer(image: image) { result in
+                                DispatchQueue.main.async {
+                                    if let result = result {
+                                        ocrResult = result
+                                        showOCRResult = true
+                                    }
+                                }
+                            }
+                        }
                     }
             }
             .fullScreenCover(isPresented: $showScanner) {
                 VNDocumentCameraViewControllerRepresentable(scanResult: $scannedImages)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear {
-                        isButtonsPresented = false
+                        if let image = scannedImages.first {
+                            uploadImageToServer(image: image) { result in
+                                DispatchQueue.main.async {
+                                    if let result = result {
+                                        ocrResult = result
+                                        showOCRResult = true
+                                    }
+                                }
+                            }
+                        }
                     }
+            }
+            .sheet(isPresented: $showOCRResult) {
+                if let ocrResult = ocrResult {
+                    OCRResultView(ocrResult: ocrResult)
+                }
             }
             .onAppear {
                 galleryConfigViewModel.checkLibraryAccess()
@@ -66,12 +94,40 @@ struct TabBar: View {
         }
     }
     
+    func uploadImageToServer(image: UIImage, completion: @escaping (String?) -> Void) {
+        guard let url = URL(string: "http://srv1.alyukov.net:5000/upload") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        let imageData = image.jpegData(compressionQuality: 0.8)
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file1\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        if let data = imageData {
+            body.append(data)
+        }
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+            guard let data = data, let responseString = String(data: data, encoding: .utf8), error == nil else {
+                print("Error uploading image: \(error?.localizedDescription ?? "Unknown error")")
+                completion(nil)
+                return
+            }
+            completion(responseString)
+        }.resume()
+    }
+    
     @ViewBuilder
     private func getCurrentView() -> some View {
         switch selectedTab {
         case 0:
 //            DocumentsView()
-            ShareView()
+            OCRResultView(ocrResult: "Result")
         case 1:
             SettingsView()
         default:
