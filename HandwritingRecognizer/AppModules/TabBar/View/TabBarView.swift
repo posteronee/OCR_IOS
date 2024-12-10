@@ -9,8 +9,9 @@ import SwiftUI
 
 struct TabBar: View {
     @State private var selectedTab = 0
+    @State private var scannedImages: [UIImage] = []
     @State private var isButtonsPresented = false
-    @State private var showCamera = false
+    @State private var showScanner = false
     @State private var isShowingPhotoPicker = false
     @State private var showAlert = false
     
@@ -18,17 +19,21 @@ struct TabBar: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                getCurrentView()
-                Spacer()
-                CustomTabBar(selectedTab: $selectedTab, isButtonsPresented: $isButtonsPresented)
-                    .padding(.horizontal, 20)
+            ZStack {
+                Color.white
+                    .edgesIgnoringSafeArea(.all)
+                VStack {
+                    getCurrentView()
+                    Spacer()
+                    CustomTabBar(selectedTab: $selectedTab, isButtonsPresented: $isButtonsPresented)
+                        .padding(.horizontal, 20)
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .modalButtons($isButtonsPresented) {
                 CustomButtonsWrapper(
                     cameraAction: {
-                        showCamera = true
+                        showScanner = true
                     },
                     galleryAction: {
                         showAlert = true
@@ -48,6 +53,13 @@ struct TabBar: View {
                         isButtonsPresented = false
                     }
             }
+            .fullScreenCover(isPresented: $showScanner) {
+                VNDocumentCameraViewControllerRepresentable(scanResult: $scannedImages)
+                    .edgesIgnoringSafeArea(.all)
+                    .onDisappear {
+                        isButtonsPresented = false
+                    }
+            }
             .onAppear {
                 galleryConfigViewModel.checkLibraryAccess()
             }
@@ -58,7 +70,8 @@ struct TabBar: View {
     private func getCurrentView() -> some View {
         switch selectedTab {
         case 0:
-            DocumentsView()
+//            DocumentsView()
+            ShareView()
         case 1:
             SettingsView()
         default:
