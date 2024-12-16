@@ -39,7 +39,7 @@ def get_text_from_image(ocr_result):
     for idx in range(len(ocr_result)):
         res = ocr_result[idx]
         for line in res:
-            result += line[-1][0]
+            result += line[-1][0] + ' '
 
     return result
 
@@ -47,9 +47,9 @@ def get_text_from_image(ocr_result):
 # Example usage
 if __name__ == "__main__":
     ocr_instance = initialize_ocr()
-    img_path = '../data/src/test.jpg'
-    font_path = '../tools/font_simfang.ttf'
-    output_path = '../data/dst/result.jpg'
+    img_path = './data/src/test.jpg'
+    font_path = './tools/font_simfang.ttf'
+    output_path = './data/dst/result.jpg'
 
     # Perform OCR
     ocr_result = perform_ocr(ocr_instance, img_path)
