@@ -10,9 +10,22 @@
 		A83E45F82CFFB5B70040655A /* HandwritingRecognizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HandwritingRecognizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A8F7E1E82D0F81BD0008D118 /* Exceptions for "HandwritingRecognizer" folder in "HandwritingRecognizer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A83E45F72CFFB5B70040655A /* HandwritingRecognizer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A83E45FA2CFFB5B70040655A /* HandwritingRecognizer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A8F7E1E82D0F81BD0008D118 /* Exceptions for "HandwritingRecognizer" folder in "HandwritingRecognizer" target */,
+			);
 			path = HandwritingRecognizer;
 			sourceTree = "<group>";
 		};
@@ -252,6 +265,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandwritingRecognizer/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Allow app use camera";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow app use library";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -293,6 +307,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandwritingRecognizer/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Allow app use camera";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow app use library";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

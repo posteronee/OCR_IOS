@@ -17,8 +17,7 @@ struct TabBar: View {
     @State private var isShowingPhotoPicker = false
     @State private var showAlert = false
     @State private var ocrResult: String? = nil
-    @State private var showOCRResult = false
-
+    @State private var isUploading = false
     
     @StateObject var galleryConfigViewModel: GalleryConfigViewModel = GalleryConfigViewModel()
     
@@ -32,6 +31,14 @@ struct TabBar: View {
                     Spacer()
                     CustomTabBar(selectedTab: $selectedTab, isButtonsPresented: $isButtonsPresented)
                         .padding(.horizontal, 20)
+                }
+                if isUploading {
+                    VStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                            .scaleEffect(1.5)
+                            .padding()
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -54,39 +61,28 @@ struct TabBar: View {
             .fullScreenCover(isPresented: $isShowingPhotoPicker) {
                 PHImagePicker(configuration: galleryConfigViewModel.setupConfig, selectedImage: $galleryConfigViewModel.selectedImages)
                     .edgesIgnoringSafeArea(.all)
+                    .onAppear {
+                        ocrResult = ""
+                    }
                     .onDisappear {
+                        isButtonsPresented = false
                         if let image = galleryConfigViewModel.selectedImages.first {
-                            uploadImageToServer(image: image) { result in
-                                DispatchQueue.main.async {
-                                    if let result = result {
-                                        ocrResult = result
-                                        showOCRResult = true
-                                    }
-                                }
-                            }
+                            handleImageUpload(image: image)
                         }
                     }
             }
             .fullScreenCover(isPresented: $showScanner) {
                 VNDocumentCameraViewControllerRepresentable(scanResult: $scannedImages)
                     .edgesIgnoringSafeArea(.all)
+                    .onAppear {
+                        ocrResult = ""
+                    }
                     .onDisappear {
+                        isButtonsPresented = false
                         if let image = scannedImages.first {
-                            uploadImageToServer(image: image) { result in
-                                DispatchQueue.main.async {
-                                    if let result = result {
-                                        ocrResult = result
-                                        showOCRResult = true
-                                    }
-                                }
-                            }
+                            handleImageUpload(image: image)
                         }
                     }
-            }
-            .sheet(isPresented: $showOCRResult) {
-                if let ocrResult = ocrResult {
-                    OCRResultView(ocrResult: ocrResult)
-                }
             }
             .onAppear {
                 galleryConfigViewModel.checkLibraryAccess()
@@ -94,9 +90,33 @@ struct TabBar: View {
         }
     }
     
+    @ViewBuilder
+    private func getCurrentView() -> some View {
+        switch selectedTab {
+        case 0:
+            OCRResultView(ocrResult: ocrResult ?? "")
+        case 1:
+            SettingsView()
+        default:
+            EmptyView()
+        }
+    }
+    
+    private func handleImageUpload(image: UIImage) {
+        isUploading = true
+        uploadImageToServer(image: image) { result in
+            DispatchQueue.main.async {
+                isUploading = false
+                if let result = result {
+                    ocrResult = result
+                    selectedTab = 0
+                }
+            }
+        }
+    }
+    
     func uploadImageToServer(image: UIImage, completion: @escaping (String?) -> Void) {
-        guard let url = URL(string: "http://srv1.alyukov.net:5000/upload") else { return }
-        
+        guard let url = URL(string: "http://178.64.3.118:5000/upload") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
@@ -121,20 +141,9 @@ struct TabBar: View {
             completion(responseString)
         }.resume()
     }
-    
-    @ViewBuilder
-    private func getCurrentView() -> some View {
-        switch selectedTab {
-        case 0:
-//            DocumentsView()
-            OCRResultView(ocrResult: "Result")
-        case 1:
-            SettingsView()
-        default:
-            EmptyView()
-        }
-    }
 }
+
+
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
@@ -204,7 +213,7 @@ struct DocumentsView: View {
 
 struct SettingsView: View {
     var body: some View {
-        Text("")
+        Text("Settings View")
             .navigationTitle("Settings")
     }
 }

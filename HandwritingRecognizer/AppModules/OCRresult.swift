@@ -4,6 +4,7 @@
 //
 //  Created by Никита Иванов on 12/10/24.
 //
+
 import SwiftUI
 import UniformTypeIdentifiers
 import PDFKit
@@ -14,11 +15,13 @@ struct OCRResultView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Результат OCR")
+                .foregroundStyle(.black)
                 .font(.headline)
                 .padding()
             
             ScrollView {
                 Text(ocrResult)
+                    .foregroundStyle(.black)
                     .padding()
             }
             .frame(maxHeight: 300)
@@ -30,19 +33,23 @@ struct OCRResultView: View {
                 Menu {
                     Button(action: { shareAsRtf() }) {
                         Label("Share DOCX", systemImage: "doc.text")
+                            .foregroundColor(.black)
                     }
-                    
                     Button(action: { shareAsPdf() }) {
                         Label("Share PDF", systemImage: "doc.richtext")
+                            .foregroundColor(.black)
                     }
                 } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(.black)
+                    }
                 }
             }
         }
+
     }
     
-    // Создание RTF файла
     private func createRtfFile(with text: String) -> URL {
         let rtfContent = """
         {\\rtf1\\ansi\\deff0
@@ -64,7 +71,6 @@ struct OCRResultView: View {
         shareFile(fileURL: fileURL, contentType: UTType.rtf)
     }
     
-    // Создание PDF файла
     private func createPdfFile(with text: String) -> URL {
         let pdfFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("ExportedFile.pdf")
         let pageRect = CGRect(x: 0, y: 0, width: 612, height: 792)
@@ -95,7 +101,6 @@ struct OCRResultView: View {
         shareFile(fileURL: fileURL, contentType: UTType.pdf)
     }
 
-    // Функция общего доступа
     private func shareFile(fileURL: URL, contentType: UTType) {
         let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -104,4 +109,3 @@ struct OCRResultView: View {
         }
     }
 }
- 
