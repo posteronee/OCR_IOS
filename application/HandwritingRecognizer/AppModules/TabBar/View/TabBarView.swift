@@ -66,8 +66,10 @@ struct TabBar: View {
                     }
                     .onDisappear {
                         isButtonsPresented = false
-                        if let image = galleryConfigViewModel.selectedImages.first {
-                            handleImageUpload(image: image)
+                        if !galleryConfigViewModel.selectedImages.isEmpty {
+                            if let image = galleryConfigViewModel.selectedImages.first {
+                                handleImageUpload(image: image)
+                            }
                         }
                     }
             }
