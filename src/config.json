@@ -1,0 +1,7 @@
+{
+    "UPLOAD_FOLDER": "./upload",
+    "MAX_CONTENT_LENGTH": 52428800,
+    "SERVER_ADDR": "http://178.64.3.118:5000",
+    "PORT": 5000,
+    "HOST": "0.0.0.0"
+}
