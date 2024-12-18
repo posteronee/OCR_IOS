@@ -18,9 +18,9 @@ struct TabBar: View {
     @State private var showAlert = false
     @State private var ocrResult: String? = nil
     @State private var isUploading = false
-    
+
     @StateObject var galleryConfigViewModel: GalleryConfigViewModel = GalleryConfigViewModel()
-    
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -91,7 +91,7 @@ struct TabBar: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func getCurrentView() -> some View {
         switch selectedTab {
@@ -103,7 +103,7 @@ struct TabBar: View {
             EmptyView()
         }
     }
-    
+
     private func handleImageUpload(image: UIImage) {
         isUploading = true
         uploadImageToServer(image: image) { result in
@@ -116,14 +116,14 @@ struct TabBar: View {
             }
         }
     }
-    
+
     func uploadImageToServer(image: UIImage, completion: @escaping (String?) -> Void) {
         guard let url = URL(string: "http://178.64.3.118:5000/upload") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
+
         let imageData = image.jpegData(compressionQuality: 0.8)
         var body = Data()
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -133,7 +133,7 @@ struct TabBar: View {
             body.append(data)
         }
         body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
-        
+
         URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
             guard let data = data, let responseString = String(data: data, encoding: .utf8), error == nil else {
                 print("Error uploading image: \(error?.localizedDescription ?? "Unknown error")")
@@ -145,12 +145,10 @@ struct TabBar: View {
     }
 }
 
-
-
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
     @Binding var isButtonsPresented: Bool
-    
+
     var body: some View {
         ZStack {
             HStack(spacing: 200) {
@@ -158,7 +156,7 @@ struct CustomTabBar: View {
                     .onTapGesture {
                         selectedTab = 0
                     }
-                
+
                 TabBarItem(icon1: "SettingsImage2", icon2: "SettingsImage1", isSelected: selectedTab == 1)
                     .onTapGesture {
                         selectedTab = 1
@@ -168,7 +166,7 @@ struct CustomTabBar: View {
             .frame(maxWidth: .infinity, alignment: .center)
             .background(.customGray)
             .clipShape(Capsule())
-            
+
             VStack {
                 Button(action: {
                     isButtonsPresented.toggle()
@@ -195,7 +193,7 @@ struct TabBarItem: View {
     let icon1: String
     let icon2: String
     let isSelected: Bool
-    
+
     var body: some View {
         VStack {
             Image(isSelected ? icon1 : icon2)
